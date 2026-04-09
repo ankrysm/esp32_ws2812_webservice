@@ -2,9 +2,9 @@
 	"title" : "Main Menu",
 	"config":[
 		{"image": "christmas.jpeg", "alt":"Christmas", "desc":"Christmas", "origin":"", "site":"christmas.html"},
-		{"image": "colorcatcher.jpeg", "alt":"Color Catcher #1", "desc":"Color Catcher #1", "origin":"http://device1.local", "site":"game1.html"},
-		{"image": "colorcatcher.jpeg", "alt":"Color Catcher #2", "desc":"Color Catcher #2", "origin":"http://device2.local", "site":"game1.html"},
-		{"image": "gapkeeper.png", "alt":"gap keeper", "desc":"Gap Keeper", "origin":"", "site":"game2.html"},
+		{"image": "game1.jpeg", "alt":"Color Catcher #1", "desc":"Color Catcher #1", "origin":"http://device1.local", "site":"game1.html"},
+		{"image": "game1.jpeg", "alt":"Color Catcher #2", "desc":"Color Catcher #2", "origin":"http://device2.local", "site":"game1.html"},
+		{"image": "game2.jpeg", "alt":"Gap Keeper", "desc":"Gap Keeper", "origin":"", "site":"game2.html"},
 		{"image": "device.jpeg", "alt":"Device #1", "desc":"Device #1 ", "origin":"http://device1.local", "site":"index.html"},
 		{"image": "device.jpeg", "alt":"Device #2", "desc":"Device #2 ", "origin":"http://device2.local", "site":"index.html"},
 		{"image": "default.png", "alt":"dummy 4", "desc":"Dummy 4"}

@@ -1,7 +1,7 @@
 #set -x
 
 CFG=/tmp/lightgttpd.conf
-DOCROOT=$(pwd)/$(dirname $0)
+DOCROOT=$(pwd)/$(dirname $0)../html
 
 #echo "DOCROOT=$DOCROOT"
 
