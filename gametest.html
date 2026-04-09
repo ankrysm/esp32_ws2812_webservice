@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Action</title>
+  <style>
+
+	:root{
+	  --bg: #FFF;
+	  --panel:#181818;
+	  --accent:#2196f3;
+	  --muted:#9aa3ad;
+	  --gap:20px;
+	}
+
+	html,body{
+	  height:100%;
+	  width:100%;
+	  margin:0;
+	  padding:0;
+	  background:var(--bg);
+	  color: black;
+	  font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+	  -webkit-font-smoothing:antialiased;
+	  -moz-osx-font-smoothing:grayscale;
+	  box-sizing:border-box;
+	  
+	  /* disable Enable panning and pinch zoom gestures, 
+	  but disable additional non-standard gestures such as double-tap to zoom. */
+	  touch-action: manipulation;
+	}
+
+	.background-image {
+	    background-image: url("colorcatcher.jpeg");
+	    background-repeat: no-repeat;
+	    background-position: center center;
+	    background-attachment: fixed;
+	    background-size: cover;
+	    height: 100vh;
+	    width: 100%;
+	}
+
+
+	
+	.container {
+	  display: flex;
+	  justify-content: space-between;
+	  gap: 20px;
+	  height: 100vh;
+	}
+	
+	.left-column {
+	  width: 200px;
+	  display: flex;
+	  flex-direction: column;
+	  gap: 10px;
+	}
+	
+	.right-column {
+	  flex: 1;
+	  overflow: auto;
+	}   
+
+	</style>
+
+</head>
+
+<body  class="background-image">
+	
+	<div class="container">
+	  <div class="left-column">
+	    <button>Button 1</button>
+	    <button>Button 2</button>
+	    <button>Button 3</button>
+	    <button>Button 4</button>
+	    <button>Button 5</button>
+	  </div>
+	  <div class="right-column">
+	    <table>
+	      <tr><th>Header 1</th><th>Header 2</th></tr>
+	      <tr><td>Data 1</td><td>Data 2</td></tr>
+	    </table>
+	  </div>
+	</div>   
+	
+	   
+<script>
+	function onBodyLoad() {
+		console.log("child: onBodyLoad");
+		console.log("child: origin=", window.origin); 
+		const is_embedded = window.self !== window.top;
+		console.log("child: ", (is_embedded?"embedded":"direct access"));
+	}
+	
+	onBodyLoad();
+</script>
+<noscript>
+	<p>no script</p>
+</noscript>
+	
+</body>
+</html>   

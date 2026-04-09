@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="stylesheet.css" id="stylesheet">
+	<title>device1</title>
+</head>
+<body id="index" onLoad="onBodyLoad()">
+  	<header>
+		<h1 class="site-title">
+		   <img src="ledstrip.jpg" alt="Logo" class="logo-img">
+		   <span class="title-text">device1</span>
+		 </h1>
+
+		<!--
+        <a id="logo" href="./index.html" title="back to home">Logo</a>
+        <h1 style="text-align: center; line-height: 75px;">device1</h1>
+		-->
+		<nav>
+			<ul>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="files.html">Files</a></li>
+				<li><a href="settings.html">Settings</a></li>
+				<li><a href="help.html">Help</a></li>
+				<li><a href="games.html">Games</a></li>
+			</ul>
+		</nav>
+	</header>
+	<article>
+		<p>Choose a game...</p>
+		<div class="btn-group">
+			<!--
+			Source - https://stackoverflow.com/a
+			Posted by BalusC, modified by community. See post 'Timeline' for change history
+			Retrieved 2026-01-02, License - CC BY-SA 4.0
+			-->
+
+			<button type="button" onclick="location.href='game1.html';" value="Game 1" >Color Catcher</button>
+			<button type="button" onclick="location.href='game2.html';" value="Game 1" >Gap Keeper</button>
+
+		</div>
+
+		<p id="msg"></p>
+	</article>
+
+<script>
+	function onBodyLoad() {}
+</script>
+<noscript>
+	<p>no script</p>
+</noscript>
+	<footer>
+	</footer>
+</body>
+</html>

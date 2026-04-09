@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Color Catcher</title>
+	<style>
+		:root{
+		  --bg: #FFF;
+		  --panel:#181818;
+		  --accent:#2196f3;
+		  --muted:#9aa3ad;
+		  --gap:20px;
+		}
+
+		html,body{
+		  height:100%;
+		  width:100%;
+		  margin:0;
+		  padding:0;
+		  background:var(--bg);
+		  color: black;
+		  font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+		  -webkit-font-smoothing:antialiased;
+		  -moz-osx-font-smoothing:grayscale;
+		  box-sizing:border-box;
+		  
+		  /* disable Enable panning and pinch zoom gestures, 
+		  but disable additional non-standard gestures such as double-tap to zoom. */
+		  touch-action: manipulation;
+		}
+		
+		.background-image {
+		    background-image: url("game1.jpeg");
+		    background-repeat: no-repeat;
+		    background-position: center center;
+		    background-attachment: fixed;
+		    background-size: cover;
+		    height: 100vh;
+		    width: 100%;
+		}
+
+		.main{
+		  border: 1px solid blue;
+		  display:grid;
+		  grid-template-columns: 1fr;
+		  grid-template-rows: auto auto 1fr;
+		  /*gap: var(--gap);*/
+		  /*width:100vw;*/
+		  height:fit-content;
+		  padding: var(--gap);
+		  box-sizing:content-box;
+		  align-items:stretch;
+		}
+		
+		.main-text {
+			margin:10px;
+			text-align: center;
+			text-shadow: 2px 2px 2px white;
+		}
+
+		.overlay {
+			position: absolute; /* Sit on top of the page content */
+			display: none; /* Hidden by default */
+			grid-template-columns: auto auto;
+			grid-template-rows: 15% auto auto;
+			/*background-color: dodgerblue;*/
+			/*padding: 10px;*/
+			top: 1%;
+			left: 1%;
+			width: 98%;
+			height: 98%; 
+			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+		}
+		.headline {
+			grid-column: 1 / -1;
+			display:flex;
+			justify-content:center;
+			gap: 28px;
+			align-items:center;
+			margin-top: 5px;
+			margin-bottom: 5px;
+			font-size: larger;
+			height: fit-content;
+		}
+		.overlay div {
+		  padding: 10px;
+		  font-size: 30px;
+		  text-align: center;
+		}
+		
+		.game-over {
+		  font-size: 10rem;
+		  color: black;
+		  text-align: center;
+		  opacity: 0;
+		  text-shadow: 0 0 20px white;
+		  position: absolute;
+		  top: 10vw;
+		  left: 10vw;
+		  width: 80vw;
+		  z-index: 2; /* stack order*/
+		}
+
+		@keyframes shrink {
+		     0% {
+		       transform: scale(1);
+		       opacity: 1;
+		     }
+		     50% {
+		       transform: scale(1.2);
+		       opacity: 0.8;
+		     }
+		     100% {
+		       transform: scale(0);
+		       opacity: 0;
+		     }
+		   }
+		
+		
+		.pic_wrapper{
+		   border: 2px solid transparent;
+		   border-radius: 12px;
+		   transition: border-color 0.18s, box-shadow 0.18s, transform .12s;
+		   cursor: pointer;
+		   overflow: hidden;
+		   /*background: var(--panel);*/
+		   /*width:100%;
+		   height:100%;*/
+		   display:flex;
+		   align-items:stretch;
+		   justify-content:stretch;
+		 }
+		 .pic_wrapper:active { transform: scale(.999); }
+
+		 .pic_wrapper.active{
+		   border-color: var(--accent);
+		   box-shadow: 0 8px 28px rgba(33,150,243,0.12);
+		 }
+			
+		  button.play_button{
+		   display:block;
+		   /*width:100%;
+		   height:100%;*/
+		   object-fit:contain;
+		   background:#000000;
+		   flex:1;
+		 }
+		 
+		 .a {
+			grid-column: 1;
+			grid-row: 2;
+		 }
+		 
+	     .b {
+		 	grid-column: 2;
+		 	grid-row: 2;
+		 }
+		 .c {
+			 grid-column: 1;
+			 grid-row: 3;
+		 }
+		.d {
+		 	grid-column: 2;
+		 	grid-row: 3;
+		 }
+		
+		 /* Responsive tweaks * /
+		 @media (max-width:700px){
+		   .grid{
+		     gap:8px;
+		     padding:8px;
+		     grid-template-rows: auto 1fr 1fr;
+		   }
+		   .nav_bar{ gap:6px; padding:8px; }
+		   .nav_bar a{ padding:6px 8px; font-size:0.95rem; }
+		 }
+		*/
+		
+		/* referenced by ID */
+		#b1 {
+		  background-color: #f00;
+		}
+		#b2 {
+		  background-color: #00f;
+		}
+		#b3 {
+		  background-color: #0f0;
+		}
+		#b4 {
+		  background-color: #ff0;
+		}
+
+		#b1:hover {
+		  background-color: #f00,0.5;
+		}
+		#b2:hover {
+		  background-color: #00f,0.5;
+		}
+		#b3:hover {
+		  background-color: #0f0,0.5;
+		}
+		#b4:hover {
+		  background-color: #ff0,0.5;
+		}
+		
+		table.data-table {
+		  width:100%;
+		  border-collapse: collapse;
+		}
+		
+		.data-table table, th, td, tr {
+		  border: 1px solid black;
+		}
+		
+		.data-table th, td {
+			padding: 3px;
+			background-color: rgba(0,255,0,0.75);
+		}
+		tr.score-header {
+			background-color: rgba(255,255,0,0.75);
+			color: black;
+		}
+		td.highscore {
+			background-color: rgba(255,0,0,0.75);
+		} 
+		
+		button.nav-button {
+			text-align: center;
+			background-color: #04AA6D;
+			border: none;
+			color: white;
+			padding: 10px 10px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+			
+		}
+
+		button.start-button{
+			font-size: 20px;
+		}		
+		.container {
+		  display: flex;
+		  justify-content: space-between;
+		  gap: 20px;
+		  height: 100vh;
+		}
+
+		.left-column {
+		  width: 10vw;
+		  display: flex;
+		  flex-direction: column;
+		  gap: 10px;
+		}
+
+		.right-column {
+		  flex: 1;
+		  /*width: 70vw;*/
+		  /*overflow: auto;*/
+		}   
+
+	</style>
+</head>
+<body  class="background-image">
+	<div>
+		
+		<!-- Content for the running game as an overlay -->
+		<div  class="overlay" id="overlay">
+
+			<div class="headline" >			
+				<button type="button" id="score" class="nav-button" onclick="toggleOverlay();" >Back to Main</button>
+			</div>
+			<div class="pic_wrapper a" data="1"><button id="b1" class="play_button"></button></div>
+			<div class="pic_wrapper b" data="2"><button id="b2" class="play_button"></button></div>
+			<div class="pic_wrapper c" data="3"><button id="b3" class="play_button"></button></div>
+			<div class="pic_wrapper d" data="4"><button id="b4" class="play_button"></button></div>
+		</div>
+		
+		<!-- idle content (game is stopped)-->
+		<div class="main" id="main">
+			 
+			<div class="main-div">
+				<h2 class="main-text">Welcome to the Color Catcher</h2>
+				<p class="main-text">Try to catch the right color, avoid building a stack.</p>
+			</div>
+	
+			<div id="game-over" class="game-over">GAME OVER</div>   
+		
+			<!-- left: buttons -->
+			<div class="container">
+
+				<div class="left-column">
+					<button class="nav-button start-button" id="run" onclick="gameStart();"><strong>Start</strong></button>
+					<p></p>
+					<button class="nav-button" id="home" onclick="location.href='games.html';">Back to Main</button>
+					<button class="nav-button" id="counter" onclick="toggleOverlay();">show Game</button>
+					<button class="nav-button" id="fullScreenToggle">(???)</button>
+				</div>
+				
+				<div class="right-column">				
+					<table id="scoretable" class="data-table" aria-label="score table">
+					   <thead>
+					     <tr class="score-header">
+					       <th>Last Scores</th>
+					       <th>Good</th>
+					       <th>Missed</th>
+					       <th>Time</th>
+					     </tr>
+					   </thead>
+					<tbody>
+						<tr><td  class="highscore">0</td><td class="highscore"></td><td class="highscore"></td class="highscore"><td class="highscore"></td class="highscore"></tr>
+						<tr><td>1</td><td></td><td></td><td></td></tr>
+						<tr><td>2</td><td></td><td></td><td></td></tr>
+						<tr><td>3</td><td></td><td></td><td></td></tr>
+						<tr><td>4</td><td></td><td></td><td></td></tr>
+						<tr><td>5</td><td></td><td></td><td></td></tr>
+						<tr><td>6</td><td></td><td></td><td></td></tr>
+						<tr><td>7</td><td></td><td></td><td></td></tr>
+						<tr><td>8</td><td></td><td></td><td></td></tr>
+						<tr><td>9</td><td></td><td></td><td></td></tr>
+						<tr><td>10</td><td></td><td></td><td></td></tr>
+					</tbody>	
+					</table>	
+				</div>
+				
+			</div> <!-- container-->
+			
+		</div>
+	</div>
+
+<script>
+
+	const timer_interval = 1000;
+	let timerIsRunning=false;
+	let timerVar;
+	let nErrors = 0;
+	
+	let jStatus = {"run_status":"UNDEF","app_type":"NONE", "cnt_good":0, "cnt_bad":0, "playtime":0};
+	
+	let is_fullscreen=false;
+	let is_overlay_on=false;
+	
+	const doc = document.getElementById("score");
+
+	function start_refreshStatus() {
+		if ( !timerIsRunning) {
+		  	timerVar = setInterval(refreshStatus, timer_interval);
+			timerIsRunning=true;
+		}
+		nErrors = 0;
+	}
+
+	function stop_refreshStatus() {
+		if ( timerIsRunning) {
+			clearInterval(timerVar);
+			timerIsRunning=false;
+		}
+	}
+
+
+	function refreshStatus() {
+		loadStatus(); 
+		
+		if ( jStatus.run_status === "STOPPED") {
+			stop_refreshStatus();
+			overlayOff();
+			console.error("refreshStatus: game over");
+			
+		}
+
+		if ( nErrors > 10) {
+			stop_refreshStatus();
+			console.error("refreshStatus: too much errors, stop it for now");
+		}
+	}
+
+	function set_score() {
+		//let msg= jStatus.run_status + "/" + jStatus.app_type + "/ GOOD=" +jStatus.cnt_good + ", UPS=" + jStatus.cnt_bad	+ ", Time="+jStatus.playtime;
+		let msg= "GOOD=" +jStatus.cnt_good + ", UPS=" + jStatus.cnt_bad	+ ", Time="+jStatus.playtime;
+		doc.innerHTML = msg;
+		
+	}
+	async function loadStatus() {
+		try {
+			const response = await fetch('data/game1');
+			if ( !response.ok) {
+				throw new Error(`HTTP Error ${response.status}`);
+			}
+			const jresponse = await response.json();
+			console.log(jresponse);
+			
+			jStatus.app_type = jresponse.app_type;
+			jStatus.run_status = jresponse.run_status;
+			jStatus.cnt_good = jresponse.cnt_good;
+			jStatus.cnt_bad = jresponse.cnt_bad;
+			jStatus.playtime = jresponse.playtime;
+			
+			set_score();
+		} catch (error) {
+			console.error('Error',error);
+		}
+	}
+
+	async function gameStartExec() {
+		try {
+			const response = await fetch('f/run/game1.txt');
+			if ( !response.ok) {
+				throw new Error(`HTTP Error ${response.status}`);
+			}
+			jStatus = await response.json();
+			console.log(jStatus);
+
+			start_refreshStatus();
+			set_score();			
+			
+		} catch (error) {
+			console.error('Error',error);
+		}
+	}	
+
+
+	function gameStart() {
+		console.log('game Start');
+		
+		doc.innerHTML = "Game started, waiting for score";
+
+		// show overlay
+		overlayOn();
+
+		gameStartExec();
+	}
+	
+	// drop a game event, not waiting for processing
+	async function handleImageClickExec(id) {
+		try {
+			// drop the event, rearm then event but no wait for processing
+			const options='&o=r';
+			const response = await fetch('d?e=game_' + id + options);
+			if ( !response.ok) {
+				throw new Error(`HTTP Error ${response.status}`);
+			}
+			
+			const result = await response.text();
+			console.log(result);
+
+		} catch (error) {
+			console.error('Error',error);
+		}
+	}	
+	function handleImageClick(id) {
+	  console.log('handleImageClick:', id);
+	  handleImageClickExec(id);
+	}
+
+	function fullscreen() {
+		console.log('fullscreen: toggle ', is_fullscreen);
+		if (is_fullscreen) {
+			if (document.fullscreenElement) {
+			  document.exitFullscreen();
+			}
+			is_fullscreen = false;
+		} else {
+			if (!document.fullscreenElement) {
+		  		document.documentElement.requestFullscreen();
+			}
+			is_fullscreen = true;
+		}
+	}
+	
+	function initHandleCIframeTFullscreen(elementName) {
+		// init for toggle fullscreen or close iframe
+		
+		const is_embedded = window.self !== window.top;
+
+		console.log("initHandleCIframeTFullscreen ", (is_embedded ? "embedded": "direct access"), "origin=", window.origin);
+
+		// toggle fullscreen or close iframe
+		//const el = window.frameElement;
+		const bt=document.getElementById(elementName);
+		if ( bt) {
+			if ( is_embedded) {
+			//if (el && el.parentNode) {
+				bt.innerHTML="xxx";
+				//bt.setAttribute("display", "none");
+				bt.style.display = 'none'; // Button disappeared
+			} else {
+				bt.innerHTML="&#x26F6;";
+			}
+			bt.setAttribute("onclick", "handleCIframeTFullscreen()");
+		} else {
+			alert("there's no element ", elementName);
+		}
+
+	}
+
+	function handleCIframeTFullscreen(){
+		const is_embedded = window.self !== window.top;
+
+		console.log("handleCIframeTFullscreen", (is_embedded?"embedded":"direct access"));
+		// Run inside the iframe
+		
+		if ( is_embedded) {
+			const el = window.frameElement;
+			if (el && el.parentNode) {
+				console.log("closed by parent.removeChild")
+				el.parentNode.removeChild(el); // Fully removes the iframe
+			}
+			console.log("send postMessage to close iframe")
+			// maybe there's an event handler
+			window.parent.postMessage({ type: 'CLOSE_IFRAME', id: 'iframe' },"*");
+		} else {
+			if (document.fullscreenElement) {
+			  	document.exitFullscreen();
+			} else {
+				document.documentElement.requestFullscreen();
+			}
+		}  
+	}
+
+	function toggleOverlay() {
+		if (is_overlay_on) {
+			// hide overlay
+			overlayOff();
+		} else {
+			// show overlay
+			doc.innerHTML = "Back to Main";
+			overlayOn();
+		}
+	} 
+	
+	function overlayOn() {
+		// show overlay
+		document.getElementById("overlay").style.display = "grid"; //block";
+		document.getElementById("main").style.display = "none";
+		is_overlay_on=true;
+	}
+	
+	function overlayOff() {
+		// hide overlay
+		document.getElementById("overlay").style.display = "none";
+		document.getElementById("main").style.display = "grid";
+		is_overlay_on=false;
+		showGameOver();
+		loadScore();
+	}
+	
+	function showGameOver() {
+		const gameOver = document.getElementById("game-over");
+		gameOver.style.animation = "shrink 3s forwards";
+		gameOver.style.opacity = 1; // Fade in immediately
+		gameOver.style.transition = "pacity 5s ease-out";
+
+		console.log("Game Over");
+		
+	}
+	
+	async function loadScore() {
+		const url='f/get/game1.json';
+		try {
+			const response = await fetch(url, {cache: "no-store"});
+			  if (!response.ok) {
+			    throw new Error(`Response status: ${response.status}`);
+			}
+			const result = await response.text();
+			try {
+			    let jscore = JSON.parse(result);
+			   	console.log("loadScore" +JSON.stringify(jscore, null, 2));
+				let highscore=jscore.highscore;
+
+				let r=1;
+				let t=document.getElementById('scoretable');
+				
+				t.rows[r].cells[0].innerHTML="Highscore";
+				t.rows[r].cells[1].innerHTML=highscore.good;
+				t.rows[r].cells[2].innerHTML=highscore.bad;
+				t.rows[r].cells[3].innerHTML=highscore.time;
+				r++;
+				let n=1;
+				let scores=jscore.score;
+				scores.forEach((score) => {
+					t.rows[r].cells[0].innerHTML=`Score ${n}`;
+					t.rows[r].cells[1].innerHTML=score.good;
+					t.rows[r].cells[2].innerHTML=score.bad;
+					t.rows[r].cells[3].innerHTML=score.time;
+					r++;
+					n++;
+				}
+				);
+
+			  } catch (error) {
+			   		console.error('Error',error);
+			  }
+		
+		} catch (error) {
+			console.error('Error',error);
+		}
+	}
+
+		// -------- called on load ---------------------------------------
+
+	// Wire up images
+	
+	const wrappers = document.querySelectorAll('.pic_wrapper');
+	wrappers.forEach(wrapper => {
+	  wrapper.addEventListener('click', function() {
+	    wrappers.forEach(w => {
+	      w.classList.remove('active');
+	      w.setAttribute('aria-pressed','false');
+	    });
+	    this.classList.add('active');
+	    this.setAttribute('aria-pressed','true');
+	    handleImageClick(this.getAttribute("data"));
+	  });
+
+	});
+	
+	initHandleCIframeTFullscreen("fullScreenToggle");
+	//start_refreshStatus();
+	refreshStatus();
+	loadScore(); 
+
+</script>
+<noscript>
+	<p>no script</p>
+</noscript>
+	<footer>
+	</footer>
+</body>
+</html>

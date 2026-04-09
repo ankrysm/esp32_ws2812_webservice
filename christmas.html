@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>The controler</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --panel:#181818;
+      --accent:#2196f3;
+      --muted:#9aa3ad;
+      --gap:20px;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:#fff;
+      font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      box-sizing:border-box;
+    }
+
+    /* Grid: top row = nav (auto), then two image rows */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr 1fr;
+      gap: var(--gap);
+      width:100vw;
+      height:100vh;
+      padding: var(--gap);
+      box-sizing:border-box;
+      align-items:stretch;
+    }
+
+    /* Nav spans both columns */
+    .nav_bar{
+      grid-column: 1 / -1;
+      display:flex;
+      justify-content:center;
+      gap: 28px;
+      align-items:center;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px);
+    }
+
+    .nav_bar a{
+      color: #fff;
+      text-decoration:none;
+      font-weight:600;
+      letter-spacing:0.2px;
+      padding:8px 12px;
+      border-radius:8px;
+      transition: background-color .15s, color .15s, transform .08s;
+      display:inline-block;
+    }
+    .nav_bar a:hover,
+    .nav_bar a:focus{
+      background: rgba(255,255,255,0.03);
+      outline: none;
+      transform: translateY(-1px);
+    }
+    .nav_bar a.active{
+      color: var(--accent);
+      box-shadow: 0 2px 10px rgba(33,150,243,0.12);
+      background: rgba(33,150,243,0.06);
+    }
+
+    .pic_wrapper{
+      border: 4px solid transparent;
+      border-radius: 12px;
+      transition: border-color 0.18s, box-shadow 0.18s, transform .12s;
+      cursor: pointer;
+      overflow: hidden;
+      background: var(--panel);
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:stretch;
+      justify-content:stretch;
+    }
+    .pic_wrapper:active { transform: scale(.999); }
+
+    .pic_wrapper.active{
+      border-color: var(--accent);
+      box-shadow: 0 8px 28px rgba(33,150,243,0.12);
+    }
+
+    img{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      background:#000000;
+      flex:1;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width:700px){
+      .grid{
+        gap:8px;
+        padding:8px;
+        grid-template-rows: auto 1fr 1fr;
+      }
+      .nav_bar{ gap:12px; padding:8px; }
+      .nav_bar a{ padding:6px 8px; font-size:0.95rem; }
+    }
+	
+	.info {
+		display: none;
+		z-index: 9999;
+		position: fixed;
+		left: 20vw;
+		top: 20vh;
+		width: 60vh;
+		height: auto;
+		background-color: rgba(0,0,0,0.75);
+		grid-column: span 2;
+	}
+	
+	.info-container {
+		display: none; /* set to 'flex' if container activated*/
+		z-index: 9999;
+		position: fixed;
+		left: 20vw;
+		top: 20vh;
+		width: 60vh;
+		height: 60vh;
+	  	flex-direction: column;
+	  	align-items: center;
+	  	justify-content: center;
+	  	gap: 1rem;
+	}
+	
+	.info-text {
+	  padding: 0.75em 1em;
+	  font-size: 1rem;
+	  border: 1px solid #ccc;
+	  border-radius: 4px;
+	  /*width: 200px;*/
+	}
+	
+	.info-ok {
+	  padding: 0.75em 1.5em;
+	  font-size: 1rem;
+	  background-color: #007bff;
+	  color: white;
+	  border: none;
+	  border-radius: 4px;
+	  cursor: pointer;
+	  display: inline-flex;
+	  justify-content: center;
+	  align-items: center;
+	}
+	
+	.info-ok:hover {
+	  background-color: #0056b3;
+	}     
+</style>
+</head>
+<body>
+  <div class="grid">
+    <nav class="nav_bar" aria-label="Main navigation">
+      <a id="home" href="#" data-link="home" id="navhome">Home</a>
+      <a href="#" data-link="settings" id="navsettings">Settings</a>
+      <a href="#" data-link="info" id="navinfo">Status</a>
+      <a href="#" data-link="toggleFullscreen" id="toggleFullscreen">&#x26F6;</a>
+    </nav>
+	
+	<div id="info" class="info-container">
+		<p id="infocontent" class="info-text">....</p>
+		<button type="button" class="info-ok" id="infoclose" onclick="closeinfo();">OK</button>
+	</div>
+
+    <div class="pic_wrapper" data="p0" tabindex="0" role="button" aria-pressed="false">
+      <img id="p0" src="assets/default.png" alt="Pic 1">
+    </div>
+    <div class="pic_wrapper" data="p1" tabindex="0" role="button" aria-pressed="false">
+      <img id="p1" src="assets/default.png" alt="Pic 2">
+    </div>
+    <div class="pic_wrapper" data="p2" tabindex="0" role="button" aria-pressed="false">
+      <img id="p2" src="assets/default.png" alt="Pic 3">
+    </div>
+    <div class="pic_wrapper" data="p3" tabindex="0" role="button" aria-pressed="false">
+      <img id="p3" src="assets/default.png" alt="Pic 4">
+    </div>
+  </div>
+
+  <script>
+	
+	var jcfg = {"actions":[], "devices":[]};
+	const filesubdir="files/";
+	
+	const timer_interval = 1000;
+	let timerIsRunning=false;
+	let timerVar;
+	let nErrors = 0;
+
+	let activeId="nothing";
+	let is_playing = false; // music and LED strip scenes started or not
+
+	let is_music_playing = false;
+	let music_play_pos=0.0;
+	let music_info = "music not available";
+	let is_leds_running = false;
+
+	let is_scenes_running = false;
+	let scenes_info = "";
+	let scenes_play_pos = 0;
+
+    // Image click handler (preserved)
+    function handleImageClick(id) {
+      console.log('handleImageClick:', id);
+	  
+	  	if ( activeId == id) {
+	  		//the same item again
+	  		if ( is_playing) {
+	  			// is playing , stop it
+	  			is_playing = false;
+
+	  		} else {
+	  			// is stopped, play it
+	  			is_playing=true;
+	  		}
+	  	} else {
+	  		// start playing another item
+	  		is_playing=true;
+	  	}
+	  	if ( is_playing) {
+	  		// start if it is not running
+	  		start_refreshStatus();
+	  	}
+
+		handle_music(id, is_playing);
+	  	handle_scenes(id, is_playing);
+	  	activeId = id;
+		showStatus();
+    }
+	
+
+    // Navbar click handler
+    function handleNavClick(key) {
+      // Customize navigation behavior
+      console.log('handleNavClick:', key);
+      // Example: highlight the active nav link
+      document.querySelectorAll('.nav_bar a').forEach(a => a.classList.toggle('active', a.dataset.link === key));
+      
+	  // do something based on key
+	  if ( key === 'settings') {
+		window.open("settings.html","_self")
+
+	  } else if ( key ==='info') {
+		  info();
+	  } else if (key === 'home') {
+		  // stop all
+		  is_playing = false;
+		  handle_music(activeId, is_playing);
+		  handle_scenes(activeId, is_playing);
+		  showStatus();
+	   
+	  } else if (key === 'toggleFullscreen') {
+		if (document.fullscreenElement) {
+		    document.exitFullscreen();
+		} else {
+			document.documentElement.requestFullscreen();
+		}
+
+//	  } else if (key.startsWith("device") ) {
+//		window.open("http://"+ key+".local","_blank")
+		 
+	  } else {
+		  alert('unexpected key ' + key);
+	  }
+    }
+	
+	function info() {
+		txt = "<p>The Controler, Version 1.0</p>";
+		if (jcfg.devices.length > 0) {
+			txt += "<p>Devices:<br>";
+			jcfg.devices.forEach((d) =>{
+				txt += `${d.device}: name=${d.name}, ipaddr=${d.ipaddr} status=${d.status}]<br>`;
+			})
+		} else {
+			txt += "Devices: none<br>";
+		}
+
+		txt += "Music: " +music_info;
+		txt+="</p>";
+		const txtitem=document.getElementById("infocontent");
+		txtitem.innerHTML=txt;
+		const adiv=document.getElementById("info");
+		adiv.style.display="flex";
+	}
+
+	function info_msg(heading, msg) {
+		txt = `<h3>${heading}</h3><p>${msg}</p>`;
+		const txtitem=document.getElementById("infocontent");
+		txtitem.innerHTML=txt;
+		const adiv=document.getElementById("info");
+		adiv.style.display="flex";
+	}
+	
+	function closeinfo() {
+		const adiv=document.getElementById("info");
+		adiv.style.display="none";
+		const wr = document.querySelectorAll('.pic_wrapper');
+		
+	}
+	
+	function showStatus() {
+		const doc = document.getElementById("home");
+		let msg="<p>Home(";
+		if ( is_music_playing) {
+			//msg+=", M:" + music_info + "," + Math.round(music_play_pos*100)+ " ";
+			//msg+='<span style="color: black; background:green">[' + music_info + "," + Math.round(music_play_pos*100)+ "]</span>";
+			msg+='<span style="color: black; background:green">[M:' + Math.round(music_play_pos*100)+ "]</span>";
+		} else {
+			msg+='<span style="color: white; background:red">[M]</span>';
+		}
+		if ( typeof jcfg !== 'undefined') {
+			jcfg.devices.forEach((d) =>{
+				if ( d.status == 'X') {
+				} else if ( d.status == 'R' ) {
+					msg += `<span style="color: black; background:green">[${d.device}]</span>` 
+				} else {
+					msg += `<span style="color: white; background:red">[${d.device}]</span>` 
+				}
+					//msg += `[${d.device}/${d.status}]`;
+			})
+		}
+		msg+=")</p>";
+		doc.innerHTML = msg;
+	} 
+	
+	function start_refreshStatus() {
+		if ( !timerIsRunning) {
+		  	timerVar = setInterval(refreshStatus, timer_interval);
+			timerIsRunning=true;
+		}
+		nErrors = 0;
+	}
+
+	function stop_refreshStatus() {
+		if ( timerIsRunning) {
+			clearInterval(timerVar);
+			timerIsRunning=false;
+		}
+	}
+
+
+	function refreshStatus() {
+		handle_vlc("nn",2);
+		(async () => { loadDevices();})(); 
+
+		if ( nErrors > 10) {
+			stop_refreshStatus();
+			console.error("refreshStatus: too much errors, stop it for now");
+		}
+	}
+
+	
+	async function loadConfig() {
+		//show_status("load config");
+	  	const url = `${filesubdir}config.json`;
+	  	try {
+	    	const response = await fetch(url, {cache: "no-store"});
+		    if (!response.ok) {
+		      throw new Error(`Response status: ${response.status}`);
+	    	}
+	        const result = await response.text();
+		    try {
+		       jcfg = JSON.parse(result);
+	   	       console.log("loadConfig:" +JSON.stringify(jcfg, null, 2));
+		   
+		       // get the picture definitions
+			   let actions=jcfg.actions;
+		       console.log(JSON.stringify(actions, null, 2));
+		   
+			  actions.forEach((ele) => {
+				  let picture=`${filesubdir}${ele.picture}`;
+				  let id=ele.id;
+				  console.log("id="+id+", picture="+picture);
+				  // show it
+				  let obj=document.getElementById(id);
+				  obj.src=picture;
+			  })
+		
+			  loadDevices();
+			  start_refreshStatus();
+			  refreshStatus();
+
+	   	  } catch(error) {
+		   throw new Error("loadConfig failed: " + error.message);
+		  }
+		} catch (error) {
+			//alert("Error " +error.message);
+			console.error("Error "+ error.message);
+			info_msg("Error", `load url ${url} failed.<br>${error.message}`);
+	  	}
+	}
+	
+	// try to open the status files in the 'files' directory to get the ip addresses 
+	function loadDevices() {
+	    //console.log(JSON.stringify(jcfg.devices, null, 2));
+		
+		if (typeof jcfg.devices === 'undefined') {
+			throw new Error("loadDevices failed: missing 'devices' in config.json");
+		}
+		const urls = [];
+		
+		// reset the status and get url's
+		jcfg.devices.forEach((d) =>{
+			//d.status="-";
+			urls.push( `${filesubdir}device_${d.name}.json`);
+		})
+
+		// define the promises with some fetches and theire response processing
+		const requests = urls.map((url, index) => fetch(url, {cache: "no-store"}) 
+			.then((response) => { 
+				if ( response.status==404) {
+					// not found
+					// console.log(`URL=${response.url} not found`)
+					let json={};
+					json.url=response.url;
+					json.response_status = response.status;
+					json.index = index;
+					return json;
+				} else if ( !response.ok) {
+					// other Error
+					throw new Error(`HTTP error,url=${response.url} status = ${response.status}`);
+				}
+				
+				// fulfill the response.json-promise by adding a .then to add data to the json structure
+				return response.json().then(json => {
+					json.response_status=response.status;
+					json.url = response.url;
+					json.index = index;
+					return json;
+				});
+			    }
+			)
+			.catch((error) => {
+				console.log("#### ups:" + error.message);
+				return {"errmsg": error.message}; 
+			   }
+			)
+		);
+
+		// use allSettled instead of all because it is OK if a request failed
+		Promise.allSettled(requests)
+		  .then(results => {
+			// all fetches are finished  
+		    for (const result of results) {
+				//console.log(`status=${result.status}, idx=${result.value.index}, url=${result.value.url} sts=${result.value.response_status}`);
+				if ( result.status=="fulfilled") {
+					let idx= result.value.index;
+					var elementId=jcfg.devices[idx].device;
+					
+					//var devicebutton=document.getElementById(elementId);
+					//if ( devicebutton === null)
+					//	console.error("missing element " + elementId);
+					//else 
+					//	devicebutton.dataset.link=jcfg.devices[idx].name;
+					
+					if (result.value.response_status==200) {
+						jcfg.devices[idx].status = result.value.status.search(/^r.*/i) >=0 ? "R" :"S";
+						jcfg.devices[idx].ipaddr = result.value.ipaddr;
+					//	if ( devicebutton !== null)
+					//		devicebutton.style.visibility='visible';
+					} else {
+						jcfg.devices[idx].status = 'X';
+						jcfg.devices[idx].ipaddr ="";
+					//	if ( devicebutton !== null)
+					//		devicebutton.style.visibility='hidden';
+					}
+				} else {
+					// shouldn't happen because the .catch(error) in the promise
+					console.error("there's a not fulfilled fetch");
+				}
+		    }
+			showStatus();
+			
+			let txt="";
+			jcfg.devices.forEach((d) =>{
+				txt += `[${d.device}/${d.ipaddr}/${d.status}]`;
+			})
+			console.log("devices", txt);
+			//*/
+		  });
+	}
+
+	// ----------- music ---------------------------------------------
+	// val: 0 - stop, 1 - play, 2 - ask for status 
+	// vlc needs an authetification. This is done by the proxy configuration of the web server
+	async function handle_vlc(fname, val) {
+		//console.log("music="+ fname +", val=" + val);
+		
+		const musicpath="/var/www/html/files/";
+		const lfname=musicpath+fname;
+		
+		const vlcurl="/requests/status.json";
+		try {
+			let command = val==1 ? "?command=in_play&input="+lfname :
+				val==2 ? "" :	
+				"?command=pl_stop";
+			const url=vlcurl +command;
+
+			const response = await fetch(url, {
+				method: "GET",
+			  	headers: {
+			    "Accept": "application/json"
+			  }
+			});
+			if (!response.ok) {
+	 		    console.error(`HTTP error ${response.status} by URL ${url}`);
+			    is_music_playing = false;
+			    music_info = "music player not available";
+			    music_play_pos = 0.0;
+				nErrors++;
+				return;
+			}
+			const text = await response.text();
+		  	let ljson;
+		  	try {
+		    	ljson = JSON.parse(text);
+				//console.log(JSON.stringify(ljson, null, 2));
+				let play_status = ljson.state;
+				//console.log("status=" + status + ", file=" +file);
+
+				 if ( val== 2) {
+					// only when ask				
+					if ( play_status == "playing" ) {
+						is_music_playing = true;
+						music_info= ljson.information.category.meta.filename;
+						music_play_pos = ljson.position;
+					} else {
+						is_music_playing = false;
+						music_play_pos = 0.0;
+						music_info = "";
+					}
+					showStatus();
+				}
+			} catch(error) {
+		    	throw new Error("invalid JSON or something wrong" + error.message);
+		  	}
+
+			// no errors
+			nErrors = 0;
+			
+		} catch (error) {
+			//status.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+			//alert("handle_vlc", error.message);
+			nErrors++;
+		}
+	}
+
+	function handle_music(id, playit) {
+		console.log("handle_music " + id +"/" +playit);
+		if (playit) {
+			// play some music
+			let actions=jcfg.actions;
+			actions.forEach((ele) => {
+				if ( ele.id === id) {
+					if (typeof ele.music !== 'undefined') {
+						let music = ele.music;
+						is_music_playing = true;
+						music_info= music;
+						music_play_pos = 0;
+						// start music with a delay 
+						setTimeout(function() { handle_vlc(music, 1 ); }, ele.music_delay);
+						//handle_vlc(music, 1 );		
+					} else {
+						is_music_playing = false;
+						music_play_pos = 0.0;
+						music_info = "none";
+					}
+				}
+			});
+		} else {
+			// stop music playing
+			handle_vlc("nn", 0);		
+		}
+	}
+
+	// ------------- scenes -------------------------------------------
+	
+	function handle_scenes_device_action(action, playit) {
+		const urls = [];
+
+		if ( playit) {
+			if (typeof action === 'undefined' || typeof action.scenes === 'undefined') {
+				console.log("handle_scenes_device_action (play): no scenes applied");
+				return;
+			}
+			console.log("handle_scenes_device_action (play): "+ JSON.stringify(action.scenes, null, 2))
+			action.scenes.forEach((scene)=>{
+				let device = scene.device; 
+				if ( typeof device === 'undefined') {
+					console.error("handle_scenes_device_action (play): missing device");
+				} else {
+					// there's a list of devices, find the ip address
+					let d = jcfg.devices.find((element) => element.device===device);
+					if ( typeof d === 'undefined') {
+						console.error("handle_scenes_device_action (play): unknonw device '" + device+"'");
+					} else {
+						if ( typeof d.ipaddr !== 'undefined' && d.ipaddr.length > 1) {
+							let url= "device/" + d.ipaddr.replace(/^(.*\.)([^\.]+)$/,"$2") +"/f/run/" + scene.file;
+							urls.push(url);
+							console.log("handle_scenes_device_action (play):" +device+"/"+ d.ipaddr+ ", url="+url);
+						} else {
+							console.log("handle_scenes_device_action (play):" +device+"/no ipaddr");
+						}
+					}
+				}
+			});
+		} else {
+			console.log("handle_scenes_device_action (stop): no scenes needed");
+			if ( typeof jcfg === 'undefined' || typeof jcfg.devices ==='undefined') {
+				console.log("handle_scenes_device_action (stop): no devices yet");
+				return;
+			}
+			// build urls for stop
+			jcfg.devices.forEach((device) => {
+				if ( typeof device.ipaddr !== 'undefined' && device.ipaddr.length >1 ) {
+					let url= "device/" + device.ipaddr.replace(/^(.*\.)([^\.]+)$/,"$2") +"/s";
+					urls.push(url);
+					console.log("handle_scenes_device_action (stop):" +device+"/"+ device.ipaddr+ ", url="+url);
+				}
+			});
+		}
+		
+		console.log(urls);
+
+		Promise.all(urls.map(url => fetch(url, {cache: "no-store"})))
+		  .then(responses => Promise.all(responses.map(response => response.text())))
+		  .then(data => console.log('Combined Results:', data))
+		  .catch(error => console.error('Error:', error.message));
+
+	}
+	
+	// load the scene file and start playing
+	function handle_scenes(id, playit) {
+		console.log("handle_scenes: scene idx="+id+ ", playit=" + playit);
+		
+		is_scenes_running = playit;
+		scenes_play_pos=0;
+	
+		if (playit) {
+			// start LED strips
+			const action = jcfg.actions.find((element) => element.id === id);
+			handle_scenes_device_action(action, playit);
+			/*
+			let actions=jcfg.actions;
+			actions.forEach((ele) => {
+				if ( ele.id === id) {
+					handle_scenes_device_action(ele.scenes, playit);
+				}
+			});
+			*/
+		} else {
+			// stop LED strips
+			handle_scenes_device_action(null, playit);
+		}
+	}
+
+
+	// -------- called on load ---------------------------------------
+	const is_embedded = window.self !== window.top;
+
+    // Wire up images
+    const wrappers = document.querySelectorAll('.pic_wrapper');
+    wrappers.forEach(wrapper => {
+      wrapper.addEventListener('click', function() {
+        wrappers.forEach(w => {
+          w.classList.remove('active');
+          w.setAttribute('aria-pressed','false');
+        });
+        this.classList.add('active');
+        this.setAttribute('aria-pressed','true');
+        //const index = parseInt(this.getAttribute('data'), 10);
+        //handleImageClick(index);
+        handleImageClick(this.getAttribute("data"));
+      });
+
+      // keyboard support (Enter / Space)
+      wrapper.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          this.click();
+        }
+      });
+    });
+
+	// hide toggle fullscreen if embedded as iframe
+	if ( is_embedded) {
+		const item = document.getElementById("toggleFullscreen");
+		item.style.display="none";
+	}
+	
+    // Wire up nav links
+    document.querySelectorAll('.nav_bar a').forEach(a => {
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        const key = this.dataset.link;
+        handleNavClick(key);
+      });
+    });
+
+    // initial nav state
+    //handleNavClick('home');
+	// load data
+	loadConfig();
+	
+//	start_refreshStatus();
+//	refreshStatus();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Controller Main</title>
+	<style>
+    :root{
+      --bg: #000;
+      --panel: #0f0f0f;
+      --muted: #9aa3ad;
+      --accent: #1e90ff;
+      --border: rgba(255,255,255,0.06);
+      --gap: 20px;
+      --editable-bg: #2f2f2f; /* gray background for editable cells */
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:#fff;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      box-sizing:border-box;
+    }
+	.headline {
+		grid-column: 1 / -1;
+		display:flex;
+		justify-content:center;
+		gap: 28px;
+		align-items:center;
+		margin-top: 5px;
+		margin-bottom: 5px;
+		font-size: larger;
+		height: fit-content;
+	}
+	div.gallery {
+	  display: grid;
+	
+  	  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  	  gap: 10px;
+      align-items: center;    /* Vertical centering */
+      justify-items: center; /* Horizontal centering */
+	}
+	
+	div.gallery-item {
+	  margin: 5px;
+	  border: 1px solid #ccc;
+	  width: 180px;
+	  cursor: pointer;
+	}
+	
+	div.gallery-item:hover {
+	  border: 1px solid #777;
+	}
+	
+	div.gallery-item img {
+	  width: 80%;
+	  height: auto;
+	  object-fit: cover;
+	  margin-left: 10%;
+      margin-top: 10%;
+	}
+	
+	div.gallery-item div.desc {
+	  padding: 15px;
+	  text-align: center;
+	}
+	
+	.close-button {
+	  position: fixed;
+	  top: 20px;
+	  right: 20px;
+	  background: rgba(255,0,0,0.5);
+	  color: white;
+	  border: 1px solid #555;
+	  font-size: 24px;
+	  width: 60px;
+	  height: 60px;
+	  border-radius: 50%;
+	  cursor: pointer;
+	  z-index: 9999;
+	  /*display: none; / * Hide until fullscreen */
+	  display: block; 
+	}   
+	
+	/* Toast message */
+	.toast-wrap {
+	  position: fixed;
+	  top: 18px;
+	  /*right: 18px;*/
+	  left:18px;
+	  z-index: 9999;
+	  display:flex;
+	  flex-direction:column;
+	  gap:10px;
+	  align-items:flex-end;
+	  pointer-events:none;
+	}
+	.toast {
+	  pointer-events:auto;
+	  background: rgba(255,255,255,0.04);
+	  color: #fff;
+	  padding:10px 14px;
+	  border-radius:10px;
+	  border: 1px solid rgba(255,255,255,0.04);
+	  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+	  font-weight:600;
+	  transform-origin: top left;
+	  animation: toastIn .14s ease;
+	}
+	@keyframes toastIn {
+	  from { transform: translateY(-6px) scale(.98); opacity:0; }
+	  to   { transform: translateY(0) scale(1); opacity:1; }
+	}
+	@media (max-width:600px){
+	  .toast-wrap { left: 12px; right: 12px; top: 12px; align-items:center; }
+	}
+
+
+</style>
+</head>
+<body>
+
+<div id="galleryContainer" style="display:block">
+	<p class="headline" id="headline">Hello world</p>
+	<button class="close-button" type="button" id="closeButton" onclick="toggleFullscreen();">&#x26F6;</button>
+	
+	<div class="gallery" id="gallery">
+		<!-- gallery items will be created by load_gallery -->
+	</div>
+	
+	<!-- Toast container for showMessage -->
+	 <div class="toast-wrap" id="toastWrap" aria-hidden="true"></div>
+
+</div>
+
+<div style="position: absolute; z-index: 1; display: none" id="iframeContainer">
+	<button class="close-button" type="button" id="closeButton" onclick="exitIframe2();">X</button>
+	<!-- an iframe is created here by function 'handleImageClick' -->  
+</div>   
+
+<script>
+
+	// === WebDAV constants (change these to your real values) ===
+	const WEBDAV_URL = 'files'; // base WebDAV folder (no trailing slash)
+	const WEBDAV_USER = 'webdavUser'; // doesn't matter
+	const WEBDAV_PASS = 'webdavPassword'; // doesn't matter
+	// === end WebDAV constants ===
+
+	const CONFIG_URL = `${WEBDAV_URL}/mainconfig.json`;
+	const DUMMY_SITE = "dummy.html";
+
+	const mainconfig = "mainconfig.json";
+	const iframeContainer = document.getElementById("iframeContainer");
+	const galleryContainer = document.getElementById("galleryContainer");
+	const gallery = document.getElementById("gallery");
+	
+	var permanent_fullscreen = false;
+	
+	function showMessage(msg, ms = 3000) {
+
+	   const div = document.createElement('div');
+	   div.className = 'toast';
+	   div.textContent = msg;
+	   toastWrap.appendChild(div);
+	   setTimeout(() => {
+	     div.style.opacity = '0';
+	     div.style.transform = 'translateY(-6px) scale(.98)';
+	     setTimeout(() => div.remove(), 200);
+	   }, ms);
+
+	 }
+
+	 function get_gallery_item_id(data) {
+		return "gallery-item-" + data;
+	 }
+	function add_gallery_item(data, image, alttext, description, origin, site) {
+		const item = document.createElement("div");
+		item.classList="gallery-item";
+		item.setAttribute('aria-pressed', 'false');
+		item.setAttribute('data-origin', origin);
+		item.setAttribute('data-site', site);
+		item.setAttribute('data-title', alttext);
+		item.id=get_gallery_item_id(data);
+		
+		const img = document.createElement("img");
+		img.src=image;
+		img.alt=alttext;
+		img.width='600';
+		img.height='400';
+		item.appendChild(img);
+		
+		const desc=document.createElement("div");
+		desc.classList = "desc";
+		desc.innerHTML=description;
+		item.appendChild(desc);
+		
+		gallery.appendChild(item);
+	}
+
+	async function load_gallery() {
+			const url = CONFIG_URL;
+			try {
+		      	const response = await fetch(url, {cache: "no-store"});
+		  	    if (!response.ok) {
+		  	      throw new Error(`Response status: ${response.status}`);
+		      	}
+		        const result = await response.text();
+		  	    try {
+				   showMessage("loaded....");
+		  	       const jcfg = JSON.parse(result);
+		     	   console.log("loadConfig:" +JSON.stringify(jcfg, null, 2));
+				   
+				   if ( jcfg.title) {
+						const headline = document.getElementById("headline");
+					 	if ( !headline)
+							throw new Error("missing element 'headline'");
+					 	headline.innerHTML = jcfg.title;
+				   }
+				   
+				   if ( !jcfg.config)
+					 throw new Error("missing attribute 'config'");
+				
+				   var idx=1;
+				   jcfg.config.forEach(item => {
+				   	if (item.site === undefined)
+				   		item.site = DUMMY_SITE;
+				   	if ( item.origin === undefined)
+				   		item.origin = window.origin;
+				   		
+				     console.log(`add_gallery_item: data=${idx}, image: ${item.image}, Alttext: ${item.alt}, desc=${item.desc}, origin=${item.origin}, site=${item.site}`);
+				     add_gallery_item(idx,item.image, item.alt, item.desc, item.origin, item.site);
+				     idx++;
+				   });
+
+				   // Wire up images
+				   const wrappers = document.querySelectorAll('.gallery-item');
+				   wrappers.forEach(wrapper => {
+				     wrapper.addEventListener('click', function() {
+				       wrappers.forEach(w => {
+				         w.classList.remove('active');
+				         w.setAttribute('aria-pressed','false');
+				       });
+				       this.classList.add('active');
+				       this.setAttribute('aria-pressed','true');
+				       handleImageClick(this.getAttribute("id"));
+				     });
+
+				   });
+				   	  	   
+		      } catch(error) {
+		  	   throw new Error("loadConfig failed: " + error.message);
+		  	  }
+		} catch (error) {
+			showMessage("Error " +error.message);
+		}
+	}	
+
+	// * creates an iframe
+	// * puts it into the iframe-container
+	// sets 
+	// * hide the gallery-container, 
+	// * show the iframe-container
+	// * the window to fullscreen, 
+	function handleImageClick(id) {
+	  console.log('handleImageClick:', id);
+	  
+	  const item=document.getElementById(id);
+	  if ( !item) {
+		showMessage(`item ${id} not found!`);
+		return;
+	  }
+	  
+	  const origin = item.getAttribute("data-origin");
+	  const site = item.getAttribute("data-site");
+	  const title = item.getAttribute("data-title");
+	  console.log("open: ", origin, site, title);
+	  showMessage(`open ${title}`);
+	  
+	  const iframe = document.createElement('iframe');   
+	  
+	  // iframe.width ... doesn't work, 'style' needed
+	  iframe.style.width="100vw"; 
+	  iframe.style.height="100vh";
+	  iframe.frameBorder = '0';
+	  iframe.title = title; 
+	 
+	  iframe.allowFullscreen=true;
+	  iframe.id='iframe';
+	  iframe.dataset.origin=origin;
+	  let src=(origin ? origin + "/" :"")+ site;
+	  console.log(`handleImageClick ${id} -> '${src}'`);
+
+	  // add the iframe to the container	  
+	  iframeContainer.appendChild(iframe);   
+
+	  // create temporary content
+	  iframe.contentDocument.write('<div style="color: white; text-align: center;' 
+	   + 'top: 20vh; position:relative;">'
+	   + '<h1>Please Wait</h1><p>content will arrive soon.</p></div>');
+	  
+	  // set the wanted content
+	  iframe.src = src
+
+	  // show iframe-container
+	  iframeContainer.style.display="block";
+	  // hide gallery-container
+	  galleryContainer.style.display="none";
+
+	  // set the parent site to fullscreen
+	  document.documentElement.requestFullscreen();
+	}
+	
+	
+	// close button is pressed
+	// * hide the iframe-container
+	// * show the gallery-container
+	// * removes the iframe
+	// * exit from full screen
+	function exitIframe() {
+		console.log("exit Iframe");
+
+		iframeContainer.style.display="none";
+		galleryContainer.style.display="block";
+		
+		const iframe=document.getElementById('iframe');
+		if ( iframe) {
+		  	console.log("exitIframe: iframe removed");
+		  	iframe.remove(); 
+		} else {
+		  	console.log("exitIframe: iframe already disappeared");
+		}
+	}
+	
+	function exitIframe2() {
+		exitIframe();
+		if (!permanent_fullscreen) {
+			document.exitFullscreen();
+		}
+	}
+
+	// toggle permanent fullscreen	
+	function toggleFullscreen() {
+		  
+		if (!document.fullscreenElement) {
+			permanent_fullscreen = true;
+		    document.documentElement.requestFullscreen();
+		} else {
+			permanent_fullscreen = false;
+		    document.exitFullscreen();
+		}
+	}
+
+	// -------- called on load ---------------------------------------
+
+
+	// add an eventlistener to destroy the iframe when fullscreen is exited
+	document.addEventListener("fullscreenchange", function () {
+		
+		if ( !document.fullscreenElement) {
+			// return from fullscreen
+			console.log("handle event 'fullscreenchange', remove iframe");
+			exitIframe();
+		} else {
+			// activate fullscreen
+			console.log("handle event 'fullscreenchange', keep iframe");
+		}
+	});
+
+	load_gallery();
+	
+	console.log("init done, origin=", window.origin);  
+
+</script>
+<noscript>
+<p>no script</p>
+</noscript>
+
+</body>
+</html>

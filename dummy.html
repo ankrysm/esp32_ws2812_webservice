@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+  <title>Action</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg:darkgreen;
+      --panel:#181818;
+      --accent:#2196f3;
+      --muted:#9aa3ad;
+      --gap:20px;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:#fff;
+      font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      box-sizing:border-box;
+	  text-align: center;
+    }
+	</style>
+</head>
+<body>
+	<div style="top: 20vh; position:relative">
+    <h1>Welcome To The Show</h1>
+    <p>This is just a placeholder.</p>
+	</div>
+<script>
+	function onBodyLoad() {
+		console.log("child: onBodyLoad");
+		console.log("child: origin=", window.origin); 
+		const is_embedded = window.self !== window.top;
+		console.log("child: ", (is_embedded?"embedded":"direct access"));
+	}
+	
+	onBodyLoad();
+</script>
+<noscript>
+	<p>no script</p>
+</noscript>
+	
+</body>
+</html>   

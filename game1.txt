@@ -1,0 +1,27 @@
+# load it with 
+# curl http://192.168.2.203/load --data-binary @game1.txt
+# store it with
+# curl http://192.168.2.203/f/store/game1.txt --data-binary @game1.txt
+
+o game 
+	id=g1 
+	t=1 
+	n=15
+	c=red;blue;green;yellow
+	s=0.5 # LED's per second
+	a=0.05
+	#start.t=2
+	start.t=1
+	fi.t=2
+	fi.p.1=2000
+
+tl once
+  tlf set clr pos=0 len=$numled bri=1.0 o=g1 g.start
+  tlf paint stop.object=g1
+
+  tlf set g.run
+  tlf paint stop.object=g1
+
+  tlf set g.finish
+  tlf paint stop.object=g1
+
