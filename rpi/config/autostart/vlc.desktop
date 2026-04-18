@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=cvlc server
+Comment=vlc as deamon
+Exec=sh -c "\\$HOME/bin/start_vlc.sh"
+Icon=vlc
+

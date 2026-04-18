@@ -1,0 +1,16 @@
+# display bitmap until all lines are displayed
+
+o bmp  id=bmp  url=http://rpi3b.local/files/scene4_300.bmp
+
+o color id=b val=green
+
+tl once
+  tlf bmp_open o=bmp # open connection and read header
+
+  tlf set clr pos=0 len=10 bri=0.1 o=b fio=1
+  tlf paint stop=1000
+
+  tlf set clr o=bmp notiles bri=1.0 len=300 pos=0
+  
+  tlf paint stop.obj=bmp # stop until all lines are displayed 
+  #tlf paint stop=10000 # stop after 10 secs

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=chromium
+Comment=chromium for LED controller
+Exec=sh -c "\\$HOME/bin/start_browser.sh"
+

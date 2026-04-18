@@ -1,0 +1,144 @@
+{
+  "actions": [
+    {
+      "id": "p0",
+      "picture": "picture0.png",
+      "music": "music0.m4a",
+      "scenes": [
+        {
+          "device": "d1",
+          "file": "scene11.txt"
+        },
+        {
+          "device": "d2",
+          "file": "scene12.txt"
+        },
+        {
+          "device": "d3",
+          "file": "scene13.txt"
+        },
+        {
+          "device": "d4",
+          "file": "scene14.txt"
+        }
+      ],
+      "music_delay": 1000
+    },
+    {
+      "id": "p1",
+      "picture": "picture1.png",
+      "music": "music1.m4a",
+      "scenes": [
+        {
+          "device": "d1",
+          "file": "scene21.txt"
+        },
+        {
+          "device": "d2",
+          "file": "scene22.txt"
+        },
+        {
+          "device": "d3",
+          "file": "scene23.txt"
+        },
+        {
+          "device": "d4",
+          "file": "scene24.txt"
+        }
+      ],
+      "music_delay": 1000
+    },
+    {
+      "id": "p2",
+      "picture": "picture2.png",
+      "music": "music2.mp3",
+      "scenes": [
+        {
+          "device": "d1",
+          "file": "scene31.txt"
+        },
+        {
+          "device": "d2",
+          "file": "scene32.txt"
+        },
+        {
+          "device": "d3",
+          "file": "scene33.txt"
+        },
+        {
+          "device": "d4",
+          "file": "scene34.txt"
+        }
+      ],
+      "music_delay": 1000
+    },
+    {
+      "id": "p3",
+      "picture": "picture3.png",
+      "music": "music3.m4a",
+      "scenes": [
+        {
+          "device": "d1",
+          "file": "scene41.txt"
+        },
+        {
+          "device": "d2",
+          "file": "scene42.txt"
+        },
+        {
+          "device": "d3",
+          "file": "scene43.txt"
+        },
+        {
+          "device": "d4",
+          "file": "scene44.txt"
+        }
+      ],
+      "music_delay": 1000
+    }
+  ],
+  "devices": [
+    {
+      "device": "d1",
+      "name": "device1",
+      "status": "STOP",
+      "ipaddr": "192.168.4.5",
+      "restplay": {
+        "file": "restplay1.txt",
+        "enabled": true
+      }
+    },
+    {
+      "device": "d2",
+      "name": "device2",
+      "status": "STOP",
+      "ipaddr": "192.168.4.6",
+      "restplay": {
+        "file": "restplay2.txt",
+        "enabled": true
+      }
+    },
+    {
+      "device": "d3",
+      "name": "device3",
+      "status": "---",
+      "ipaddr": "",
+      "restplay": {
+        "file": "restplay3.txt",
+        "enabled": true
+      }
+    },
+    {
+      "device": "d4",
+      "name": "device4",
+      "status": "---",
+      "ipaddr": "",
+      "restplay": {
+        "file": "restplay4.txt",
+        "enabled": true
+      }
+    }
+  ],
+  "uploadedFile": "configtest.json",
+  "timestamp": "2025-11-18T03:09:08.307Z"
+}

@@ -1,0 +1,30 @@
+# show some moving dots withe a blue background
+o dots
+  id=dots1
+  n=5
+  offs=0
+
+  pos.speed=0
+  #pos=10:290
+
+  #valmin=0.05
+  #valmax=0.2
+  bri=0.05:0.2
+  #vspeed=0.01:0.025
+  bri.speed=0.001:0.0025
+  bri.newcolor 
+  
+  #vwidth=3:6
+  width=0.05:0.10
+
+  bg=blue,0.05
+  fgl=hsv,90,100,100;hsv,150,100,100;hsv,180,100,100;hsv,210,100,100;hsv,240,100,100
+  #fgl=blue
+
+tl forever
+  tlf set clr o=dots1 pos=0 len=300
+
+  #tlf oset o=dots1 pspeed=0.01:0.05
+  tlf oset o=dots1 pos.speed=1.0:5.0
+  tlf paint nostop
+
